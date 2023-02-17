@@ -14,6 +14,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for ChatWS {
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
             Ok(ws::Message::Text(text)) => ctx.text(text),
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
+            Err(error) => println!("Error on stream handler {:?}", error),
             _ => (),
         }
     }
@@ -22,8 +23,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for ChatWS {
 #[get("/ws/")]
 async fn ws_index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     let resp = ws::start(ChatWS {}, &req, stream);
-
-    resp
+    return resp;
 }
 
 #[actix_web::main]
@@ -33,8 +33,8 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init();
 
-    HttpServer::new(|| App::new().wrap(Logger::default()).service(ws_index))
+    return HttpServer::new(|| App::new().wrap(Logger::default()).service(ws_index))
         .bind(("127.0.0.1", 3000))?
         .run()
-        .await
+        .await;
 }
