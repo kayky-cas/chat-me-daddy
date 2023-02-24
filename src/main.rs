@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod client_ws_tests {
     use websocket::{ClientBuilder, OwnedMessage};
 
     #[test]
