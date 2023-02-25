@@ -9,8 +9,9 @@ fn main() -> anyhow::Result<()> {
     //
     let addr = "127.0.0.1:2794";
 
-    println!("INFO: Runnign webscoket server at {addr}...");
+    println!("INFO: Try to runnign webscoket server at {addr}...");
     let server = Server::bind(addr)?;
+    println!("INFO: Server running");
 
     for request in server.filter_map(Result::ok) {
         let _: thread::JoinHandle<anyhow::Result<()>> = thread::spawn(|| {
