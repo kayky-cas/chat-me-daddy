@@ -1,3 +1,5 @@
+use std::thread;
+
 use websocket::sync::Server;
 
 fn main() -> anyhow::Result<()> {
@@ -11,7 +13,31 @@ fn main() -> anyhow::Result<()> {
     let server = Server::bind(addr)?;
 
     for request in server.filter_map(Result::ok) {
-        println!("Request accepted!");
+        let _: thread::JoinHandle<anyhow::Result<()>> = thread::spawn(|| {
+            let client = request
+                .accept()
+                .map_err(|err| anyhow::anyhow!("ERROR: {}", err.1))?;
+
+            let ip = client.peer_addr()?;
+
+            dbg!(ip);
+
+            let (mut reciver, _) = client.split()?;
+
+            for message in reciver.incoming_messages() {
+                let message = message?;
+
+                match message {
+                    websocket::OwnedMessage::Text(m) => dbg!(m),
+                    websocket::OwnedMessage::Binary(_) => todo!("Binary"),
+                    websocket::OwnedMessage::Close(_) => todo!("Close"),
+                    websocket::OwnedMessage::Ping(_) => todo!("Ping"),
+                    websocket::OwnedMessage::Pong(_) => todo!("Pong"),
+                };
+            }
+
+            Ok(())
+        });
     }
 
     Ok(())
@@ -28,7 +54,8 @@ mod client_ws_tests {
 
         let (_, mut sender) = client.split()?;
 
-        let message = OwnedMessage::Text("Oi kk".to_owned());
+        //let message = OwnedMessage::Text("Oi kk".to_owned());
+        let message = OwnedMessage::Ping(vec![]);
 
         dbg!(&message);
 
